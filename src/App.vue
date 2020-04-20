@@ -1,12 +1,32 @@
 <template>
   <div class="app" id="app">
-    <div class="col text-center">
+    <div class="col text-center" @click.stop>
       <img alt="Vue logo" src="./assets/logo.png" />
     </div>
-    <div class="contaier">
+    <div class="container">
       <div class="row justify-content-center">
-        <div class="col-8 text-center">
-          <TaggingInput ref="tagging" :fetch="getData" text-key="color" id-key="value" />
+        <div class="col-lg-6 col-md-8 col-s-12 col-xs-12 text-center">
+          <TaggingInput
+            ref="tagging"
+            v-bind:isMultiSelect="true"
+            placeholder="Input a color name"
+            :fetch="getData"
+            text-key="color"
+            id-key="value"
+          />
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8 col-s-12 col-xs-12 text-center">
+          <span></span>
+          <TaggingInput
+            ref="tagging"
+            v-bind:isMultiSelect="false"
+            placeholder="Input a color name"
+            :fetch="getData"
+            text-key="color"
+            id-key="value"
+          />
         </div>
       </div>
     </div>
@@ -16,42 +36,44 @@
 <script lang="ts">
 import Vue from "vue";
 import TaggingInput from "./components/TaggingInput.vue";
-
+const data = {
+  color: [
+    {
+      color: "red",
+      value: "#f00"
+    },
+    {
+      color: "green",
+      value: "#0f0"
+    },
+    {
+      color: "blue",
+      value: "#00f"
+    },
+    {
+      color: "cyan",
+      value: "#0ff"
+    },
+    {
+      color: "magenta",
+      value: "#f0f"
+    },
+    {
+      color: "yellow",
+      value: "#ff0"
+    },
+    {
+      color: "black",
+      value: "#000"
+    }
+  ],
+  name: []
+};
 export default Vue.extend({
   methods: {
-    getData(textKey: string, query: string): Promise<Array<any>> {
+    getData(query: string, textKey: string): Promise<Array<{}>> {
       return new Promise<Array<any>>((resolve, reject) => {
-        const items = [
-          {
-            color: "red",
-            value: "#f00"
-          },
-          {
-            color: "green",
-            value: "#0f0"
-          },
-          {
-            color: "blue",
-            value: "#00f"
-          },
-          {
-            color: "cyan",
-            value: "#0ff"
-          },
-          {
-            color: "magenta",
-            value: "#f0f"
-          },
-          {
-            color: "yellow",
-            value: "#ff0"
-          },
-          {
-            color: "black",
-            value: "#000"
-          }
-        ];
-
+        const items = data[textKey];
         setTimeout(function() {
           if (!query) {
             reject();
@@ -70,7 +92,7 @@ export default Vue.extend({
     }
   },
   components: {
-    TaggingInput,
+    TaggingInput
   },
   mounted() {
     console.log(this.$refs.tagging);
@@ -79,7 +101,7 @@ export default Vue.extend({
 </script>
 
 <style>
-@import url("https://uselooper.com/assets/stylesheets/theme.min.css");
+@import url("https://uselooper.com/assets/stylesheets/theme-dark.min.css");
 @import url("https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
 
 #app {
