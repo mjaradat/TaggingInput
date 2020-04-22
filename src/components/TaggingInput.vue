@@ -1,71 +1,95 @@
 <template>
-  <div ref="taggingInput" :data-component-id="compontentID" class="tag-input-component has-typeahead-scrollable" @click="foucsField">
+  <div
+    ref="taggingInput"
+    :data-component-id="compontentID"
+    class="tag-input-component has-typeahead-scrollable"
+    @click="foucsField"
+  >
     <div class="card">
       <!-- .media-body -->
       <div class="card-body">
         <div class="media">
           <!-- .media-body -->
-          <div class="media-body">
+          <div class="media-body mw-100">
             <!-- .publisher -->
             <div ref="publisher" class="publisher keep-focus focus" :class="{active: !focus}">
               <!-- Bage Containers -->
-              <Tags :items="items" :text-key="textKey" @click="foucsField" />
-
-              <div class="publisher-input position-relative">
-                <input
-                  id="publisherInput1"
-                  class="form-control"
-                  :placeholder="placeholder || 'Write Somthing'"
-                  ref="tagInputField"
-                  v-model="inputItem"
-                  type="text"
-                  @input="fetchSuggestion"
-                  tabindex="0"
-                  @keydown="selectItemByArrowKeys"
-                  @keydown.enter="addItem(focus - 1)"
-                  @focus="(event) => {toggleListItem(event, true)}"
-                />
-                <div
-                  class="tt-menu tt-open"
-                  style="position: absolute; top: 100%; left: 0px; z-index: 100; display: block"
-                  ref="suggestedListWrapper"
-                  v-if="(canShow && recivedItems.length) || showSpinner"
-                >
-                  <Spinner class="p-1 mt-1" :can-show="showSpinner" />
-                  <div class="tt-dataset">
-                    <div class="list-group-bordered" v-show="recivedItems">
-                      <div
-                        v-for="(item, index) in recivedItems"
-                        :key="index"
-                        class="list-group-item list-group-item-action"
-                        @click="addItem(index)"
-                        :tabindex="index + 1"
-                        ref="listItems"
-                        @keydown="selectItemByArrowKeys"
-                        :class="[(index + 1) === focus? '': '']"
-                        @mouseover="selectItemByIndex(index)"
-                      >
-                        <div v-if="!item.isNew" class="list-group-item-figure">
-                          <div
-                            class="tile tile-circle"
-                            :class="getCircleColor(item[textKey].length)"
-                          >{{ item[textKey][0].toUpperCase() }}</div>
-                        </div>
+              <!-- <Badges :items="items" :text-key="textKey"  /> -->
+              <Badges :items="items" text-key="email" @click="foucsField">
+                <!-- <div class="publisher-input position-relative">
+                  <input
+                    id="publisherInput1"
+                    class="form-control"
+                    :placeholder="placeholder || 'Write Somthing'"
+                    ref="tagInputField"
+                    v-model="inputItem"
+                    type="text"
+                    @input="fetchSuggestion"
+                    tabindex="0"
+                    @keydown="selectItemByArrowKeys"
+                    @keydown.enter="addItem(focus - 1)"
+                    @focus="(event) => {toggleListItem(event, true)}"
+                  />
+                </div>-->
+                <span class="publisher-input position-relative m-0">
+                  <input
+                    id="publisherInput1"
+                    class="form-control border-0 d-block mw-100 p-0"
+                    :placeholder="[this.items.length? '' : (placeholder || 'Write Somthing')]"
+                    ref="tagInputField"
+                    v-model="inputItem"
+                    type="text"
+                    @input="fetchSuggestion(); setInputWidth()"
+                    tabindex="0"
+                    autocomplete="off"
+                    @keydown="selectItemByArrowKeys"
+                    @keydown.enter="addItem(focus - 1)"
+                    @focus="(event) => {toggleListItem(event, true)}"
+                    style="outline: none; box-shadow: none; padding: 0px; outline: 0px !important;"
+                    :style="{'width': inputWidth}"
+                  />
+                </span>
+              </Badges>
+              <div
+                class="tt-menu tt-open"
+                style="position: absolute; top: 100%; left: 0px; z-index: 100; display: block"
+                ref="suggestedListWrapper"
+                v-if="(canShow && recivedItems.length) || showSpinner"
+              >
+                <Spinner class="p-1 mt-1" :can-show="showSpinner" />
+                <div class="tt-dataset">
+                  <div class="list-group-bordered" v-show="recivedItems">
+                    <div
+                      v-for="(item, index) in recivedItems"
+                      :key="index"
+                      class="list-group-item list-group-item-action"
+                      @click="addItem(index)"
+                      :tabindex="index + 1"
+                      ref="listItems"
+                      @keydown="selectItemByArrowKeys"
+                      :class="[(index + 1) === focus? '': '']"
+                      :style="[index === recivedItems.length - 1? {'border': 0} : '']"
+                    >
+                      <div v-if="!item.isNew" class="list-group-item-figure">
                         <div
-                          class="list-group-item-body"
-                        >{{ item.isNew ? '"' + item[textKey] + '"' : item[textKey]}}</div>
-                        <button
-                          v-if="item.isNew"
-                          type="button"
-                          class="btn btn-icon bg-primary mr-1"
-                          style="color: #fff"
-                          data-toggle="tooltip"
-                          title
-                          data-original-title="Private message"
-                        >
-                          <i class="fa fa-plus"></i>
-                        </button>
+                          class="tile tile-circle"
+                          :class="getCircleColor(item[textKey].length)"
+                        >{{ item[textKey][0].toUpperCase() }}</div>
                       </div>
+                      <div
+                        class="list-group-item-body"
+                      >{{ item.isNew ? '"' + item[textKey] + '"' : item[textKey]}}</div>
+                      <button
+                        v-if="item.isNew"
+                        type="button"
+                        class="btn btn-icon bg-primary mr-1"
+                        style="color: #fff"
+                        data-toggle="tooltip"
+                        title
+                        data-original-title="Private message"
+                      >
+                        <i class="fa fa-plus"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -82,7 +106,7 @@
 import Vue, { PropType } from "vue";
 
 import Spinner from "./Spinner.vue";
-import Tags from "./Tags.vue";
+import Badges from "./Badges.vue";
 
 export default Vue.extend({
   props: {
@@ -110,7 +134,7 @@ export default Vue.extend({
   },
   components: {
     Spinner,
-    Tags
+    Badges
   },
   data() {
     const items: Array<{}> = [];
@@ -138,6 +162,7 @@ export default Vue.extend({
       delayCounter: 0,
       focus: 1,
       canShow: false,
+      inputWidth: "",
       compontentID: new Date().getTime()
     };
   },
@@ -147,17 +172,18 @@ export default Vue.extend({
         // this.recivedItems.splice(itemIndex, 1);
         return;
       }
-
+      const item: any = this.recivedItems[itemIndex]
       this.items.push(this.recivedItems[itemIndex]);
       // this.recivedItems.splice(itemIndex, 1);
-      if (!this.isMultiSelect) {
+      if (!this.isMultiSelect || item.isNew) {
         this.recivedItems = [];
         this.inputItem = "";
+        return;
       }
 
       if (!this.recivedItems.length) {
         this.inputItem = "";
-      }
+      }      
       return;
     },
     addNewSuggestion() {
@@ -288,34 +314,25 @@ export default Vue.extend({
       }, 100);
     },
     toggleListItem(event: Event, canShow: boolean) {
-      
       this.canShow = canShow;
       console.log("event added");
       document.removeEventListener("click", this.handleFocusOut, true);
       document.addEventListener("click", this.handleFocusOut, true);
-
-      //console.log(document.activeElement)
-      //this.canShow = canShow;
-      // this.toggleListItemTimer = setTimeout(() => {
-      //   this.canShow = canShow;
-      //   this.focus = 1;
-      // }, 200)
-
-      // const taggingInput = this.$refs.taggingInput as HTMLElement;
-      // const target = event.target as HTMLElement;
-      // console.log(target)
-      // if (target.closest(".tag-input-component") !== null) {
-      //   this.canShow = true
-      // } else {
-      //   console.log("close")
-      //   this.canShow = false;
-      // }
+      false;
     },
     handleFocusOut(event: Event) {
       const taggingInput = this.$refs.taggingInput as HTMLElement;
       const target = event.target as HTMLElement;
-      console.log(target.closest(".tag-input-component[data-component-id='"+ this.compontentID +"']"));
-      if (target.closest(".tag-input-component[data-component-id='"+ this.compontentID +"']") !== null) {
+      console.log(
+        target.closest(
+          ".tag-input-component[data-component-id='" + this.compontentID + "']"
+        )
+      );
+      if (
+        target.closest(
+          ".tag-input-component[data-component-id='" + this.compontentID + "']"
+        ) !== null
+      ) {
         console.log("open");
       } else {
         //this.recivedItems = [];
@@ -326,12 +343,22 @@ export default Vue.extend({
         this.focus = 1;
       }
     },
+    setInputWidth() {
+      const inputWidth = this.inputItem.length * 0.75;
+      if(!inputWidth && !this.items.length && this.placeholder.length) {
+        this.inputWidth = this.placeholder.length + "rem";
+        return;
+      }
+      
+      if(inputWidth) {
+        this.inputWidth = (inputWidth + 0.75) + "rem";
+      } else {
+        this.inputWidth = "0.75rem";
+      }
+    }
   },
   created() {
-    //document.addEventListener("click", this.handleFocusOut, true);
-  },
-  destroyed() {
-    //document.removeEventListener("click", this.handleFocusOut, true);
+    this.setInputWidth()
   }
 });
 </script>
