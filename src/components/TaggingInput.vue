@@ -6,31 +6,11 @@
     @click="foucsField"
   >
     <div class="card">
-      <!-- .media-body -->
       <div class="card-body">
         <div class="media">
-          <!-- .media-body -->
           <div class="media-body mw-100">
-            <!-- .publisher -->
             <div ref="publisher" class="publisher keep-focus focus" :class="{active: !focus}">
-              <!-- Bage Containers -->
-              <!-- <Badges :items="items" :text-key="textKey"  /> -->
-              <Badges :items="items" text-key="email" @click="foucsField">
-                <!-- <div class="publisher-input position-relative">
-                  <input
-                    id="publisherInput1"
-                    class="form-control"
-                    :placeholder="placeholder || 'Write Somthing'"
-                    ref="tagInputField"
-                    v-model="inputItem"
-                    type="text"
-                    @input="fetchSuggestion"
-                    tabindex="0"
-                    @keydown="selectItemByArrowKeys"
-                    @keydown.enter="addItem(focus - 1)"
-                    @focus="(event) => {toggleListItem(event, true)}"
-                  />
-                </div>-->
+              <Badges :items="items" text-key="email" :isFocused="canShow" @click="foucsField">
                 <span class="publisher-input position-relative m-0">
                   <input
                     id="publisherInput1"
@@ -43,8 +23,8 @@
                     tabindex="0"
                     autocomplete="off"
                     @keydown="selectItemByArrowKeys"
-                    @keydown.enter="addItem(focus - 1)"
-                    @focus="(event) => {toggleListItem(event, true)}"
+                    @keydown.enter="addItem(focus - 1); setInputWidth()"
+                    @focus="(event) => {toggleListItem(event, true); setInputWidth()}"
                     style="outline: none; box-shadow: none; padding: 0px; outline: 0px !important;"
                     :style="{'width': inputWidth}"
                   />
@@ -63,7 +43,7 @@
                       v-for="(item, index) in recivedItems"
                       :key="index"
                       class="list-group-item list-group-item-action"
-                      @click="addItem(index)"
+                      @click="addItem(index); setInputWidth()"
                       :tabindex="index + 1"
                       ref="listItems"
                       @keydown="selectItemByArrowKeys"
@@ -79,17 +59,12 @@
                       <div
                         class="list-group-item-body"
                       >{{ item.isNew ? '"' + item[textKey] + '"' : item[textKey]}}</div>
-                      <button
-                        v-if="item.isNew"
-                        type="button"
-                        class="btn btn-icon bg-primary mr-1"
-                        style="color: #fff"
-                        data-toggle="tooltip"
-                        title
-                        data-original-title="Private message"
+                      <small
+                        class="list-group-item-body text-muted text-right"
                       >
-                        <i class="fa fa-plus"></i>
-                      </button>
+                        <i class="fa fa-exclamation-circle"></i>
+                        click or press enter to add
+                      </small>
                     </div>
                   </div>
                 </div>
@@ -168,13 +143,16 @@ export default Vue.extend({
   },
   methods: {
     addItem(itemIndex: number) {
-      if (this.isDuplicated(itemIndex)) {
-        // this.recivedItems.splice(itemIndex, 1);
+      if ((!itemIndex && !this.recivedItems.length) ||
+          !this.inputItem ||
+          this.showSpinner ||
+          this.isDuplicated(itemIndex)
+          ) {
         return;
       }
-      const item: any = this.recivedItems[itemIndex]
-      this.items.push(this.recivedItems[itemIndex]);
-      // this.recivedItems.splice(itemIndex, 1);
+      const item: any = this.recivedItems[itemIndex];
+      this.items.push(item)
+
       if (!this.isMultiSelect || item.isNew) {
         this.recivedItems = [];
         this.inputItem = "";
@@ -183,7 +161,7 @@ export default Vue.extend({
 
       if (!this.recivedItems.length) {
         this.inputItem = "";
-      }      
+      }
       return;
     },
     addNewSuggestion() {
@@ -194,18 +172,14 @@ export default Vue.extend({
       this.recivedItems.push({
         [this.textKey]: this.inputItem,
         isNew: true,
-        [this.idKey]: this.getNewItemID()
+        [this.idKey]: this.getNewItemID(),
+        isValid: true
       });
     },
-    isNewItem() {
-      const filterItems = (item: {}, index: number, array: {}[]) => {
-        const tempItem = Object.create(item);
-        return tempItem[this.textKey] === this.inputItem;
-      };
-
-      return !this.recivedItems.filter(filterItems).length;
-    },
     isDuplicated(itemIndex: number) {
+      if(!this.recivedItems.length) {
+        return false;
+      }
       const recivedItem = Object.create(this.recivedItems[itemIndex]);
       const filterItems = (item: {}, index: number, array: {}[]) => {
         const tempItem = Object.create(item);
@@ -215,10 +189,15 @@ export default Vue.extend({
       return !!this.items.filter(filterItems).length;
     },
     getNewItemID() {
+      if(!this.items.length) {
+        return -1;
+      }
+
       const filterItems = (item: {}, index: number, array: {}[]) => {
         const tempItem = Object.create(item);
         return tempItem.isNew;
       };
+      
       const lengthOfNewItems = this.items.filter(filterItems).length;
       const newItemID = !lengthOfNewItems ? -1 : lengthOfNewItems * -1 - 1;
       return newItemID;
@@ -226,14 +205,27 @@ export default Vue.extend({
     foucsField() {
       const el = this.$refs.tagInputField as HTMLInputElement;
       el.focus();
+      setTimeout(() => {
+        el.scrollIntoView({
+          block: "center",
+          behavior: "smooth"
+        });
+      }, 300);
     },
     fetchSuggestion() {
+      //To ignore the last input event that triggered
+      //after clearing the content of the input field totaly by backspace
       if (this.inputItem.length < 2) {
         this.recivedItems = [];
         return;
       }
+
+      //To clear the previous timeout
+      //On input event
       clearTimeout(this.typingTimer);
 
+      //Used to show that last
+      //requested list items
       this.delayCounter++;
       const requestOrder = this.delayCounter;
 
@@ -243,10 +235,12 @@ export default Vue.extend({
         this.showSpinner = true;
         this.fetch(query, this.textKey)
           .then(res => {
-            console.log("req = > ", this.delayCounter, requestOrder);
+            //if this condi. is true, this means there is
+            //upcoming another request, so no need to show this request.
             if (this.delayCounter !== requestOrder) {
               return;
             }
+
             this.recivedItems = res;
             if (!this.recivedItems.length) {
               this.addNewSuggestion();
@@ -315,7 +309,6 @@ export default Vue.extend({
     },
     toggleListItem(event: Event, canShow: boolean) {
       this.canShow = canShow;
-      console.log("event added");
       document.removeEventListener("click", this.handleFocusOut, true);
       document.addEventListener("click", this.handleFocusOut, true);
       false;
@@ -323,42 +316,36 @@ export default Vue.extend({
     handleFocusOut(event: Event) {
       const taggingInput = this.$refs.taggingInput as HTMLElement;
       const target = event.target as HTMLElement;
-      console.log(
-        target.closest(
-          ".tag-input-component[data-component-id='" + this.compontentID + "']"
-        )
+      const taggingInputComponent = target.closest(
+        ".tag-input-component[data-component-id='" + this.compontentID + "']"
       );
-      if (
-        target.closest(
-          ".tag-input-component[data-component-id='" + this.compontentID + "']"
-        ) !== null
-      ) {
+      if (taggingInputComponent !== null) {
         console.log("open");
       } else {
-        //this.recivedItems = [];
-        //this.focus = 0;
         document.removeEventListener("click", this.handleFocusOut, true);
-        console.log("close");
         this.canShow = false;
         this.focus = 1;
+        this.inputItem = "";
+        this.recivedItems = [];
+        this.setInputWidth();
       }
     },
     setInputWidth() {
       const inputWidth = this.inputItem.length * 0.75;
-      if(!inputWidth && !this.items.length && this.placeholder.length) {
+      if (!inputWidth && !this.items.length && this.placeholder.length) {
         this.inputWidth = this.placeholder.length + "rem";
         return;
       }
-      
-      if(inputWidth) {
-        this.inputWidth = (inputWidth + 0.75) + "rem";
+
+      if (inputWidth) {
+        this.inputWidth = inputWidth + 0.75 + "rem";
       } else {
         this.inputWidth = "0.75rem";
       }
     }
   },
   created() {
-    this.setInputWidth()
+    this.setInputWidth();
   }
 });
 </script>
