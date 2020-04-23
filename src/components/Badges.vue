@@ -1,7 +1,8 @@
 <template>
-  <div class="publisher-actions form-control"
-       :class="{ 'border border-primary': isFocused}"
-       :style="[ isFocused === true ? {'boxShadow': '0 0 0 1px #346cb0'} : '']"
+  <div
+    class="publisher-actions form-control"
+    :class="{ 'border border-primary': isFocused}"
+    :style="[ isFocused === true ? {'boxShadow': '0 0 0 1px #346cb0'} : '']"
   >
     <div class="publisher-tools mr-auto">
       <ul class="nav">
@@ -12,6 +13,7 @@
                     'badge-warning ': item.isNew,
                     'badge-danger': !item.isValid}"
             v-show="isFocused || index < limit"
+            @dblclick="expandGroup(index)"
           >
             <i
               v-if="item.isValid && !item.isNew && !item.group"
@@ -35,7 +37,12 @@
             ></i>
             <span class="text-key pl-1">{{ item[textKey] }}</span>
             <div class="has-clearable d-inline pl-4">
-              <button type="button" class="close show p-0" style="color: #000" @click="removeItem(index)" >
+              <button
+                type="button"
+                class="close show p-0"
+                style="color: #000"
+                @click="removeItem(index)"
+              >
                 <span aria-hidden="true">
                   <i class="fa fa-times-circle"></i>
                 </span>
@@ -44,15 +51,16 @@
           </span>
         </li>
         <li clss="nav-item">
-          <span v-if="!isFocused && items.length > limit" @click="showMore" class="badge badge-subtle badge-dark">{{items.length - limit}} more ..</span>
+          <span
+            v-if="!isFocused && items.length > limit"
+            @click="showMore"
+            class="badge badge-subtle badge-dark"
+          >{{items.length - limit}} more ..</span>
         </li>
         <li clss="nav-item">
           <slot></slot>
         </li>
       </ul>
-
-      
-      <!-- <span v-if="items.length === limit && items.length !== 8" @click="showLess" class="badge badge-subtle badge-dark">Less</span> -->
     </div>
   </div>
 </template>
@@ -89,8 +97,12 @@ export default Vue.extend({
     showMore() {
       this.limit = this.items.length;
     },
-    showLess() {
-      this.limit = 8;
+    expandGroup(index: number ) {
+      const item: any = this.items[index]
+      if(!item.group) {
+        return
+      }
+      this.items.splice(index, 1, ...item.group);
     }
   }
 });

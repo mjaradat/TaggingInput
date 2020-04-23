@@ -1,12 +1,30 @@
 <template>
-    <TaggingInput
-      ref="tagging"
-      :isMultiSelect="true"
-      placeholder="Input a color name"
-      :fetch="getData"
-      text-key="email"
-      id-key="id"
-    />
+  <div class="page-inner">
+    <div class="card">
+      <div class="card-body">
+        <fieldset>
+          <TaggingInput
+            ref="tagging"
+            :isMultiSelect="true"
+            placeholder="Input a color name"
+            :fetch="getData"
+            text-key="email"
+            id-key="id"
+            fieldLable="Tagging Input 1: Multiple Select"
+          />
+          <TaggingInput
+            ref="tagging"
+            :isMultiSelect="false"
+            placeholder="Input a color name"
+            :fetch="getData"
+            text-key="email"
+            id-key="id"
+            fieldLable="Tagging Input 2: Single Select"
+          />
+        </fieldset>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -16,21 +34,74 @@ const data = [
   {
     id: 1,
     name: "Dominica",
-    email: "dparnaby0@ycombinator.com",
+    email: "@dparnaby0@ycombinator.com",
     isNew: false,
     isValid: true
   },
   {
     id: 2,
     name: "Novelia",
-    email: "nwawer1@nature.com",
+    email: "naawer1@nature.com",
     isNew: false,
-    isValid: true
+    isValid: true,
+    group: [
+      {
+        id: 2,
+        name: "Example Group",
+        email: "mkoschke2@ftc.gov",
+        isNew: false,
+        isValid: true,
+        group: [
+          {
+            id: 1,
+            name: "Dominica",
+            email: "dparnaby0@ycombinator.com",
+            isNew: false,
+            isValid: true
+          },
+          {
+            id: 2,
+            name: "Novelia",
+            email: "nwawer1@nature.com",
+            isNew: false,
+            isValid: true
+          },
+          {
+            id: 3,
+            name: "Harli",
+            email: "hdigwood2@google.es",
+            isNew: false,
+            isValid: true
+          },
+          {
+            id: 4,
+            name: "Elita",
+            email: "eclingan3@fema.gov",
+            isNew: false,
+            isValid: true
+          }
+        ]
+      },
+      {
+        id: 1,
+        name: "Company Group",
+        email: "ebraganza1@google.it",
+        isNew: false,
+        isValid: true
+      },
+      {
+        id: 3,
+        name: "Pansie",
+        email: "pbeves0@bbb.org",
+        isNew: false,
+        isValid: true
+      }
+    ]
   },
   {
     id: 3,
     name: "Harli",
-    email: "hdigwood2@google.es",
+    email: "nahdigwood2na@google.es",
     isNew: false,
     isValid: true
   },
@@ -382,7 +453,7 @@ export default Vue.extend({
             return tempItem[textKey].startsWith(query);
           });
           resolve(filteredItems);
-        }, 1500);
+        }, Math.floor(Math.random() * Math.floor(5)) * 1000);
       });
     }
   },

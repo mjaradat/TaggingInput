@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="mh-100 h-100">
+  <div id="app" class="">
     <div class="nav-scroller border-bottom">
       <!-- .nav-tabs -->
       <ul class="nav nav-tabs">
@@ -15,8 +15,8 @@
       <!-- /.nav-tabs -->
     </div>
 
-    <div class="container mh-100 h-100">
-      <div class="row justify-content-center mh-100 h-100">
+    <div class="container">
+      <div class="row justify-content-center">
         <div class="col-lg-6 col-md-8 col-s-12 col-xs-12">
           <router-view></router-view>
         </div>
@@ -51,6 +51,6 @@ export default Vue.extend({
 
 
 <style>
-@import url("https://uselooper.com/assets/stylesheets/theme.min.css");
+@import url("https://uselooper.com/assets/stylesheets/theme-dark.min.css");
 @import url("https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
 </style>
