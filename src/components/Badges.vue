@@ -5,7 +5,7 @@
     :style="[ isFocused === true ? {'boxShadow': '0 0 0 1px #346cb0'} : '']"
   >
     <div class="publisher-tools mr-auto">
-      <ul class="nav">
+      <ul class="nav justify-content-start">
         <li clss="nav-item" v-for="(item, index) in items" :key="index">
           <span
             class="badge badge-pill border mr-1"
